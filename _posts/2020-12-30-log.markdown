@@ -1,0 +1,14 @@
+---
+layout:     post
+title:      "log"
+subtitle:   "🗓 生活中的点滴 "
+date:       2020-12-30 11:49:00
+author:     "Hiz"
+header-img: "img/home-bg-o.jpg"
+---
+
+> new journey
+
+## 2020-12-30
+。
+
