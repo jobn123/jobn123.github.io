@@ -1,0 +1,592 @@
+---
+layout:     post
+title:      "React实践"
+subtitle:   "📎"
+date:       2021-01-03 12:00:00
+author:     "Hiz"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+tags:
+    - React
+    - 技术
+---
+
+# React 设计思想
+
+## React 基础原则
+
+* React界面由数据驱动
+
+  UI = F(state)
+
+* React中一切皆组件
+
+* 组件之间数据通过**Props**传递
+
+# 组件实践
+
+## 定义清晰可维护的接口
+
+* 接口小，props数量少、
+* 根据数据边界划分组件，充分利用组合、
+* 把state往上层组件提取，下层组件实现为纯函数、
+
+## 比较好的实践
+
+* 避免使用 renderXXX函数，抽象成独立的React组件
+* 回调函数类型的props加统一前缀
+* 使用propTypes定义组件的props
+* React 将内容、样式、功能聚合在一起是符合高内聚的表现、
+
+```react
+import styled from 'styled-components'
+
+const Buttons = (props) => {
+  <Box>box</Box>
+}
+
+Buttons.propTypes = {
+	activited: PropTypes.bool,
+	onStart: PropTypes.func.isRequired,
+	onPause: PropTypes.func.isRequired,
+	onReset: PropTypes.func.isRequired,
+}
+
+const Box = styled`
+	color: red
+`
+```
+
+# 组件设计模式
+
+## 聪明组件、傻瓜组件
+
+把一个功能分配到两个组件中、形成父子组件，父组件负责状态管理，子组件负责展示内容、
+
+这样一来如果要修改优化组件只需要修改傻瓜组件、如果要修改数据、状态管理，只需要修改聪明组件即可、这样职责更清晰，更易维护、
+
+## PureComponent
+
+傻瓜组件的缺点是无法使用React的生命周期如**ShouldComponentUpdate**这样当父组件状态发生变化时，即使传入的props跟上次一样傻瓜组件也会跟着更新，导致不必要的性能浪费、
+
+```react
+// 傻瓜组件
+const Joke = () => {
+  return <div>这是一个傻瓜组件</div>
+}
+
+// Pure Component
+class Joke extends React.PureComponent {
+  render() {
+    return <div>pure component</div>
+  }
+}
+```
+
+### pure component 存在的问题
+
+* pure component 中shouldComponentUpdate 只对 props做浅层比较，如果两次渲染的props都是同一个对象，但是对象中属性不同，在pureComponent眼中props没有变化，就不会重新渲染、
+* 虽然能够提高组件的渲染性能，但是需要将组件实现为class。不能以纯函数的方式实现、
+
+## React.Memo
+
+```react
+const MemeComponent = React.Memo(() => {
+  return <div>Memo Component</div>
+})
+```
+
+## 高阶组件
+
+高阶组件至少接收一个React组件作为参数，并且返回一个全新的React 组件、
+
+```react
+const WithDoNothing = (Component) => {
+	const NewComponent = (props) => {
+    return <Component {...props}/>
+  }
+  return NewComponent
+}
+```
+
+高阶组件的命名一般以**with**开头，后面跟着高阶组件的功能、
+
+* 高阶组件不能修改作为参数的组件，高阶组件必须是纯函数、不应该有任何副作用
+* 高阶组件必须是一个新的React组件，这个新组件的JSX部分肯定会包含参数组件
+* 高阶组件一般需要把传递给自己的props参数传递给参数组件、
+
+### 使用场景
+
+* 抽取共同逻辑
+
+* 接收多个组件参数，根据不同的需要渲染不同的组件
+
+* 链式调用高阶组件
+
+  ```react
+  // 方式1
+  const x1 = withOne(x)
+  const x2 = withTwo(x)
+  const x3 = withThree(x)
+  
+  const superX = x3
+  
+  // 方式2
+  const superX = withThree(withTwo(withOne(x)))
+  ```
+
+### 不足
+
+* 对于React 生命周期函数，高阶组件不用怎么特殊处理，但是如果内层组件包含静态函数，这些静态函数在React生命周期之外，高阶组件必须在新产生的组件中增加这些静态函数的支持、	
+* 高阶组件支持嵌套调用，出现bug调试麻烦
+
+## Render Props
+
+```react
+const RenderAll = (props) => {
+  return (
+  	<React.Fragment>
+    	{ props.children(props)}
+    </React.Fragment>
+  )
+}
+
+// 使用
+<RenderAll>
+	{() => <h1>Hello World</h1>}
+</RenderAll>
+```
+
+## 提供者模式
+
+### 使用场景
+
+组件之间需要指传递，但是组件之间隔着多层其他组件、
+
+提供者模式可以提供一些信息，而且这些信息下其他所有组件 无论隔了多少层，都可以供消费者直接访问到，不需要通过Props层层传递、
+
+### Context Api
+
+```react
+// 创建上下文
+const ThemeContext = React.createContext();
+
+// 创建生产者、消费者
+const ThemeProvider = ThemeContext.Provider;
+const ThemeConsumer = ThemeContext.Consumer;
+
+// 使用消费者
+class Subject extends React.Component {
+  render () {
+    return (
+    	<ThemeConsumer>
+      	{
+          (theme) => (
+          	<h1 style={{color: theme.mainColor}}>
+            	{this.props.children}
+            </h1>
+          )
+        }
+      </ThemeConsumer>
+    )
+  }
+}
+
+// 纯函数实现
+const Paragraph = (props, context) => {
+  return (
+  	<ThemeConsumer>
+    	{
+        (theme) => (
+        	<p style={{color: theme.textColor}}>
+          	{ props.children }
+          </p>
+        )
+      }
+    </ThemeConsumer>
+  )
+}
+
+<ThemeProvider value={{mainColor: 'green', textColor: 'red'}}>
+	<Page />
+</ThemeProvider>
+```
+
+
+
+## 组合组件
+
+组合组件模式要解决的问题是这样一类：父组件想要传递一些信息给子组件，但是如果用props传递十分麻烦、
+
+问题描述： 我们需要一个Tabs组件和一个TabItem组件，Tabs是容器，TabItem是一个个单独的Tab，选中的TabItem和其他的TabItem 不同、
+
+```react
+const TabItem = (props) => {
+  const {active, onClick} = props
+  const TabStyle = {
+    'max-width': '150px',
+    color: active ? 'red' : 'green',
+    border: active ? '1px solid red' : '0px' 
+  }
+  return (
+  	<h1 style={TabStyle} onClick={onClick}>
+      { props.children }
+    </h1>
+  )
+}
+
+class Tabs extends React.Component {
+  state = {
+    activeIndex: 0
+  }
+	
+	render () {
+    const newChildren = React.Children.map(this.props.children, (child, index) => {
+      if (child.type) {
+          	return React.cloneElement(child, {
+              active: this.state.activeIndex === index,
+              onClick: () => this.setState({activeIndex: index})
+            })
+          } else {
+            return child;
+          }
+    })
+    
+    return (
+    	<React.Fragment>
+      	{newChildren}
+      </React.Fragment>
+    )
+  }
+}
+
+// 使用
+<Tabs>
+	<TabsItem>one</TabsItem>
+  <TabsItem>two</TabsItem>
+  <TabsItem>three</TabsItem>
+</Tabs>
+```
+
+* **React.Children.map**可以遍历children中所有元素
+* **React.cloneElement** 可以复制某个元素，第一个参数就是被复制的元素，第二个参数可以增加新产生元素的props
+
+应用组合组件的往往是共享组件库，把一些常用的功能封装在组件里，让应用层直接使用就行。
+
+# React 单元测试
+
+* Mocha
+* Jest
+* Enzyme
+
+# React 状态管理
+
+## 组件自身state
+
+对于React 组件而言数据分为两种
+
+* props 外部传递给组件的数据
+* state 组件本身的数据
+
+### state改变引发渲染的时机
+
+并不是每一次setState调用都会触发一次渲染
+
+```react
+this.setState({count: 1})
+this.setState({caption: 'foo'})
+this.setState({count: 2})
+
+// 想当于
+this.setState({
+  count: 2,
+  cation: 'foo'
+})
+```
+
+React每次setState函数都会往React的任务队列中放一个任务，然后React会选择时机去批量的处理队列里的任务，当批量处理开始是，React会合并多个SetState操作。这样可以避免多次渲染。
+
+因为这个任务队列的存在。React并不会 同步更新state.
+
+### state 不会被同步更新
+
+```react
+console.log(this.state.count) // 0
+this.setState({count: 1})
+console.log(this.state.count) // 0
+```
+
+假设setState 是由React生命周期函数或者事件处理函数同步调用，这种情况下不会立即同步更新state和同步渲染，但是，如果调用setState由其他条件引发就不是这样了
+
+```react
+setTimeout(() => {
+  this.setState({count: 2}) // 这会立即引发重新渲染
+	console.log(this.state.count) // 2
+}, 0)
+```
+
+因为setTimeout 是JS函数，于react无关，React 认为这次setState在自己能力范围外，所有会立即同步更新
+
+### setState 第二个参数
+
+```react
+this.setState({
+  count: 1
+}, () => {
+  //state 被修改后立即调用
+	console.log(this.state.count) // 1
+ })
+```
+
+### 函数式更新state
+
+setState也可以传入一个函数
+
+```react
+// 这是一个纯函数，不仅接收当前的state还接收组件的props
+function increment (state, props) {
+  return {count: state.count + 1}
+}
+
+this.setState(increment)
+```
+
+## Redux
+
+Redux 与React并无直接关系，Rudex可以管理React的状态，也可以管理其他应用的状态、
+
+Redux 主要的贡献就是限制了对状态的修改方式，让所有改变都变的可被追踪、
+
+### Redux 应用场景
+
+如何决定状态放在组件中还是Redux中？
+
+对于简单状态，用React自己来搞定、只有那些使用场合不限于一个组件的，才有理由让Redux管理
+
+* 看这个状态是否多个组件共享
+* 看这个组件被unmount之后重新被mount之前的状态是否需要保留
+
+### Redux代码组织方式
+
+* 基于角色的分类 把相关源码放在一个目录
+* 基于功能的分类 --> 每个目录代表一个模块
+
+推荐使用的方式
+
+```shell
+post -- actions.js
+		|_ reducer.js
+		|- view.js
+Comment -- action.js
+		|_ reducer.js
+		|_ view.js
+```
+
+### 在 React中使用Redux
+
+```react
+// 1、安装相关库
+npm install redux react-redux
+
+// 2、在靠近根节点位，通过Provider来引入一个Store
+// 这个Prvider 利用了React的Context功能，在这个Provider下的所有的组件，如果
+// 使用connect 那么链接的就是Provider的state
+
+import { createStore } from 'redux'
+import { Provider } from 'react-redux'
+
+const store = createStore(...)
+                          
+<Provider store={store}>
+</Provider>
+
+ // 3、组件与State链接
+ import { connect } from 'react-redux'
+
+const mapStateProps = （state） => {
+  return {
+    count: state.count
+  }
+}
+
+const mapDispatchToProps = (dispatch) => ({
+  onIncrement: () => dispatch({type: 'INCREMENT'})
+})
+
+const CounterView = ({count, OnIncrement} => {
+  return (
+    <div>
+    	{count}
+      <button onClick={onIncrement}></button>
+    </div>
+  )
+})
+
+const Counter = connect(mapStateProps, mapDispatchToProps)(CounterView)
+```
+
+==connect==函数接收两个参数，==mapStateProps== 把Store上的state映射为props,另一个==mapDispatchToProps==是吧回调函数的props映射派发薇action的操作，connect函数的调用最终会产生一个高阶组件、
+
+### Redux 最佳实践
+
+* Store上的数据应该范式化，减少冗余信息
+
+* 使用selector -->reselector
+
+  [reselector](https://github.com/reduxjs/reselect) reselect为selector设置了缓存，只有当selector的输入改变时，程序才重新调用selector函数。可以避免大量的重复运算、
+
+* 只connect关键点的React组件
+
+### Redux 实现异步操作
+
+* Redux-thunk
+* Redux-saga
+
+## Mobx
+
+Mobx等于实现了设计模式中的“观察者模式”,通过建立observer 和 observable之间的关联，达到数据联动、
+
+### Mobx 一般配合decorator使用
+
+```react
+import { observable } from 'mobx'
+import { observer } from 'mobx-react'
+
+@observer
+class Counter extends React.component {
+  @observable count = 0
+
+	onIncrement = () => {
+    this.count ++
+  }
+  
+  onDecrement = () => {
+    this.count --
+  }
+  
+  render () {
+    return (
+    	<div>
+      	<div>{count}</div>
+        <button onClick={this.onIncrement}>加</button>
+        <button onClick={this.onDecrement}>➖</button>
+      </div>
+    )
+  }
+}
+
+// Counter中并没有自己的state, 被observer 修饰过后，Counter 其实被强行注入了State
+```
+
+### 将State与React组件独立
+
+```react
+const store = observable({
+  count: 0
+})
+store.increment = function() {
+  this.count++
+}
+store.decrement = function() {
+  this.count--
+}
+
+@observer
+class Counter extends React.Component {
+  onIncrement = () => {
+    store.increment()
+  }
+  onDecrement = () => {
+    store.decrement()
+  }
+  
+  render () {
+    return <div>
+      	<div>{count}</div>
+        <button onClick={this.onIncrement}>加</button>
+        <button onClick={this.onDecrement}>➖</button>
+      </div>
+  }
+}
+```
+
+## Mobx 与 Redux  比较
+
+* Redux 认为数据一致性很重要，为了限制对数据的修改，要求store中的数据是不可改的，只能通过action触发reducer来更新store
+* Mobx 同样认为数据一致性很重要，mobx可以直接修改数据 ，让所有的数据之间保持联动，改了一处，其他依赖这处的数据也自动更新来保持数据一致性的问题。Mobx中也提供了action的概念，不需要dispatch，调用就能修改 对应的数据、
+
+Mobx 小而简单，快速开发应用，Redux大而复杂但是易于维护、
+
+# 路由
+
+* 将URL 映射到对应的页面来处理
+* 页面之间的切换只需局部更新
+
+### Route 、 Switch
+
+```react
+<Route path='/' component={Home}>
+<Route path='/about' component={About}>
+  
+ // 这样写，当访问/about时，页面不仅匹配到/about 也匹配到 / ，页面会同时显示Home和About
+ // 解决办法 在想要精确匹配的Route上家一个属性exact, 或者使用Switch 组件。
+```
+
+### 动态路由
+
+满足一定条件才显示
+
+```react
+{
+  isUserLogin && <Route exact path='/product' component={Product} >
+}
+```
+
+# 服务端渲染
+
+### 服务端渲染的意义
+
+* 加快首屏渲染时间
+* SEO友好
+
+```react
+import React from 'react'
+import ReactDOMServer from 'react-dom/server'
+
+// 把渲染内容以流的形式塞给response
+ReactDOMServer.renderToNodeStream(<Hello />).pipe(response)
+```
+
+### 服务端渲染的难点 是 组件 获取 提供数据
+
+服务端渲染要配合浏览器端渲染
+
+如果只是用服务端渲染，那么只产生HTML，虽然能够让浏览器显示内容，但是却无法响应用户的交互事件。这就需要将组件在浏览器端重新执行一遍，也就是mount一遍就可以了。但是要处理好服务端数据跟浏览器端数据不一致的问题、
+
+必须把传给React组件的数据给保留住，随着HTML一起传递给浏览器网页，这个过程叫做==脱水==，在浏览器端，就直接拿这个脱水的数据来初始化React组件，这个过程叫==注水==
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/react.png" alt="react" style="zoom: 33%;" />
+
+### Next.js
+
+* getInitialProps 是Next.js的核心
+* 在getInitialProps中实现Ajax等异步操作，其他React组件无需关心自己是在服务端渲染还是浏览器端渲染。
+
+#### Next.js脱水、注水
+
+Next做服务端渲染的时候，页面对应的react组件getInitialProps函数被调用，异步结果就是 脱水数据的重要部分，除了传给页面React组件完成渲染，还放在内嵌的script的__NEXT_DATA__中，在浏览器端渲染的时候不会调用getInitialProps，直接通过_ _NEXT_ DATA_ _ 中的脱水数据来启动页面React组件的渲染。
+
+当页面路由切换的时候，会重新调用getInitialProps函数、
+
+# 异步渲染
+
+React最初的设计，整个渲染过程都是同步，但一个组件开始渲染时，就必须一口气渲染完不能中断，对于庞大的树，这个过程 就会很耗时，而且同步的处理导致代码比较麻烦
+
+React Fiber 引入了异步渲染，React组件的渲染过程是分时间片的，不是一口气从头到尾渲染完，而是每个时间片的间隔都可以去看看有没有更紧急的任务，如果有，就去处理紧急的任务，如果没有就继续照常渲染、
+
+## Suspense
+
+# Hooks
+
+不需要用Class来实现组件
+

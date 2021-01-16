@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "log"
-subtitle:   " 生活中的点滴 🗓"
+subtitle:   "🗓 生活中的点滴 "
 date:       2017-08-17 11:49:00
 author:     "Hiz"
 header-img: "img/home-bg-o.jpg"

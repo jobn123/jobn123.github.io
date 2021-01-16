@@ -1,0 +1,440 @@
+---
+layout:     post
+title:      "Nodejs"
+subtitle:   "⚙️"
+date:       2021-01-05 12:00:00
+author:     "Hiz"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+tags:
+    - Nodejs
+    - Javascript
+---
+
+# 什么是Nodejs
+
+**官网的定义**
+
+> Nodejs 是一个基于Chrome V8 引擎的javasscript运行环境
+>
+> Nodejs 使用了事件驱动、非阻塞IO的模型，使其轻量又高效
+
+其实在Nodejs 里写js跟Chrome里写js**几乎都一样**
+
+**不一样的地方**
+
+* Nodejs 没有浏览器的一些api, 即document、window等
+* 加入了很多Nodejs自己的api
+* Javascript 控制浏览器
+* Nodejs 控制整个计算机
+
+# Nodejs 可以做什么
+
+
+
+## web 服务
+
+* 搜索引擎优化 + 首屏速度优化
+* 构建工作流 gulp webpack
+
+## 开发者工具 vscode 
+
+## 复杂本地化应用
+
+* 使用js灵活性提供外部拓展
+* js庞大的开发者集数让他们的灵活得以应用
+
+## 客户端应用 electron
+
+# 什么是技术预研
+
+* 分析做的需求，找出技术难点
+* 针对每个难点进行攻克
+
+# BFF
+
+Backend for Frontend
+
+chrome => nodejs => 微服务 => chrome
+
+**BFF职责**
+
+* 对用户提供http 服务
+* 使用后端RPC服务
+
+# Commonjs
+
+* javascript 社区发起，在Nodejs上推广应用
+* 后续也影响到了浏览器端javascript
+
+```javascript
+// lib.js
+exports.hello = 'word'
+exports.add =  () => conson.log('add')
+exports.test = {hello: 'word'}
+
+// lib2
+module.exports = function add () {}
+
+// test.js
+var lib = require('./lib')
+var lib2 = require('./lib2')
+
+lib.hello
+lib.add()
+lib.test.hello
+
+lib2()
+```
+
+# Nodejs 内置模块
+
+![截屏2021-01-04 上午8.04.34](https://i.loli.net/2021/01/04/Wtu8aL5TKAHCnUY.png)
+
+# Nodejs 非阻塞I/O
+
+* I/O即 input/outout , 一个系统的输入输出
+* 阻塞I/O与非阻塞I/O的区别在于 ==系统接收输入再到输出期间，能不能接收其他输入==
+
+## 理解非阻塞I/O的要点
+
+* 确定一个进行的Input/Output
+* 思考在I/O过程中，能不能进行其他I/O
+
+# Nodejs 异步编程
+
+## 回调函数格式规范
+
+* err-first callback
+* node-style callback
+
+第一个参数是error，第二个才是结果
+
+## 事件循环
+
+```javascript
+const eventloop = {
+  queue = []
+  
+	loop () {
+    while (this.queue.length) {
+      const callback = this.queue.shift()
+      callback()
+    }
+    setTimeout(this.loop.bind(this), 50)
+  }
+	
+	add (callback) {
+    this.queue.push(callback)
+  }
+}
+
+// 调用
+eventloop.loop()
+
+// 入栈
+eventloop.add(() => console.log(1))
+eventloop.add(() => console.log(2))
+
+```
+
+*每一个事件循环都是一个全新的调用栈*
+
+## Promise
+
+执行==Then==和==catch==会返回一个新的promise 该promise的最终状态根据then和catch的回调函数的执行结果决定
+
+* 如果回调函数最终结果是throw，该promise是rejected状态
+* 如果回调函数最终是return, 该promise是resolved状态
+
+## async await
+
+*async/await*
+
+* async function 是Promise的语法糖封装
+* 异步编程的终极解决方案，可以以同步的方式写异步
+  * await 可以暂停async function的执行
+  * await 可以以同步的方式获取Promise的执行结果
+  * try-catch 可以捕获到await所得到的错误
+
+# HTTP
+
+## 什么是HTTP服务
+
+* 一个网页请求，包含两次HTTP包交换
+  * 浏览器向HTTP服务器发送请求HTTP包
+  * HTTP 服务器向浏览器返回HTTP包
+
+* HTTP 服务要做什么事情
+  * 解析进来的HTTP请求报文
+  * 返回对应的HTTP返回报文
+
+## Express
+
+* 了解一个框架，最好的办法是
+
+  * 了解它的关键功能
+  * 推倒它解决了什么问题
+
+  * 路由、高性能、高测试覆盖率、http请求重定向。缓存、支持多种模板引擎、脚手架
+
+## KOA
+
+> 精简内核，所有额外的功能都移到中间件实现。精简、高性能
+
+* 中间件
+  * 使用async function执行中间件
+  * 有暂停执行的能力
+  * 在异步的情况下也符合洋葱模型
+* ctx、request 、response比express更极致的request，response优化
+  * ctx.status = 200
+  * ctx.body = 'success'
+
+## Express VS Koa
+
+* Express 门槛低， Koa更优雅强大
+* Express封装更多东西大而全， 开发迅速。Koa可定制话高
+
+# RPC
+
+## 什么是RPC调用
+
+* Remote Procedure Call (远程过程调用)
+
+## 与ajax相同的地方
+
+* 两个计算机网络通信
+* 需要双方约定一个数据格式
+
+## 与ajax不同的地方
+
+* 不一定使用Dns作为寻址服务
+* 应用层协议一般不使用HTTP
+* 基于TCP UDP协议
+
+# React/Vue 服务端渲染
+
+* NEXT.js
+
+# HTTP 压力测试
+
+## 压力测试工具
+
+* ab apache
+* webbench
+
+## 找到性能瓶颈
+
+* top cpu 内存
+* iostat 硬盘
+* 负载
+
+# Nodejs性能分析工具
+
+## 工具
+
+### Nodejs 自带 profile
+
+```javascript
+// 启动分析命令
+node --prof index.js
+
+// 分析生成的log文件
+node --prof process isolate-xxxx-xxxx-v8.log > profile.txt
+```
+
+### chrome devtool
+
+```javascript
+node --inspect-brk index.js
+```
+
+### clinic.js
+
+# javascript 性能优化
+
+*计算机性能优化本质*
+
+* 减少不必要的计算
+* 空间换时间
+
+## Nodejs HTTP服务性能优化准则
+
+* 提前计算 -> 启动阶段
+
+# 内存管理优化
+
+## 垃圾回收
+
+> javascript 引擎 会记录我们创建的所有javascirpt对象，javascript 引擎引擎会隔一段时间定时清理没有使用的javascript对象，完成内存释放
+
+## chrome v8 垃圾回收
+
+* 新生代 -》 新创建的对象 -》 分配将要满的时候 -》垃圾回收-》没用的清理掉-》几次清理不掉的对象放入老生代
+
+  * 容量小，垃圾回收快
+
+* 老生代 -》 长期不用的对象
+
+  ​	容量大，垃圾回收慢
+
+> 减少内存的使用，也是提高性能的手段
+>
+> 如果内存泄露，会导致性能大大降低
+
+## 内存泄露分析
+
+chrome -> memory
+
+# Nodejs子进程与线程
+
+* 进程
+
+  * 操作系统挂载运行程序的单元
+
+  * 拥有独立的资源、如内存等
+
+* 线程
+  * 进行运算调度的单元
+  * 进程内的线程共享进程内资源
+
+```javascript
+// 父进程
+const cp = require('child_process')
+
+const process = cp.fork(__dirname+'./child.js')
+process.send('haha')
+
+// 接受子进程消息
+process.on('message', (str)=> {
+  console.log(str)
+})
+
+// 子进程
+process.on('message', (str) => {
+  consoloe.log(str)
+  
+  // 
+  process.send('from child')
+})
+```
+
+## Cluster模块
+
+*分发http服务到子进程*
+
+```javascript
+const cluster = require('cluster')
+
+if (cluster.isMaster) {
+  cluster.fork()
+  cluster.fork()
+  cluster.fork()
+} else {
+  require('./app.js')
+}
+```
+
+## 进程守护
+
+*监听捕获异常、重新开启子进程*
+
+```javascript
+const cluster = require('cluster')
+
+if (cluster.isMaster) {
+  cluster.fork()
+  cluster.fork()
+  cluster.fork()
+  
+  
+	cluster.on('exit', () => {
+    setTimeout(() => {
+      cluster.fork()
+    }, 5000)
+  })
+} else {
+  require('./app.js')
+  
+  process.on('', () => {
+   
+    // 错误上报
+    // TODO
+    
+    // 退出进程
+    process.exit(1)
+  })
+}
+```
+
+*监听内存使用状况*
+
+```javascript
+setInterval(() => {
+  console.log(process.memoryUsage().rss)
+  
+ 	// 内存泄露临界值  
+  if (process.memoryUsage().rss > 734003200) {
+      process.exit(1)
+   }
+}, 5000)
+```
+
+*通过心跳包查询是否进入假死状态*
+
+# 架构优化
+
+* 静态内容
+  * 基本不会变，也不会因为请求参数不同而变化
+  * cdn分发，http缓存等
+* 动态内容
+  * 各种请求参数不同而变化
+  * 用大量的源站机器承载，结合反向代理进行负载均衡
+
+## 反向代理、缓存服务
+
+*nginx 配置反向代理*
+
+```nginx
+location ~ /node/(\d*) {
+  proxy_pass http://127.0.0.1:3000/detail?columnid=$1;
+}
+```
+
+nignx 集群配置 负载均衡
+
+```nginx
+upstream node.com {
+  server 127.0.0.1:3000;
+  server 127.0.0.1:3001;
+}
+
+location ~ /node/(\d*) {
+  proxy_pass http://node.com/detail?columnid=$1;
+}
+```
+
+*nginx缓存*
+
+```nginx
+location ~ /node/(\d*) {
+  # proxy_pass http://127.0.0.1:3000/detail?columnid=$1;
+  proxy_cache 
+}
+```
+
+## redis 缓存
+
+# serverless
+
+* 云函数
+  * 不用因运维、架构的事情操心
+    * 缩短业务上线周期
+    * 减少出错的概率
+    * 业务开发上手难度低
+  * 渐进式
+* serverless => 屏蔽服务器细节
+
+* less
+  * 把能在多个业务复用的东西下沉，屏蔽细节。
+

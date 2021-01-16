@@ -1,0 +1,1127 @@
+---
+layout:     post
+title:      "Javascript设计模式"
+subtitle:   "🏗"
+date:       2021-01-04 12:00:00
+author:     "Hiz"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+tags:
+    - 设计模式
+    - Javascript
+---
+
+# 设计模式
+
+> 每一个模式描述了一个在我们周围不断重复发生的问题，以及该问题的解决方案的核心。这样，你就能一次又一次地使用该方案而不必做重复劳动。 —— Christopher Alexander
+
+## SOLID设计原则
+
+> "SOLID" 是由罗伯特·C·马丁在 21 世纪早期引入的记忆术首字母缩略字，指代了面向对象编程和面向对象设计的五个基本原则
+
+* 单一功能原则 Single Responsibility Principle
+* 开发封闭原则 Opened Closed Principle
+* 里式替换原则 Liskov Substitution Principle
+* 接口隔离原则 Interface Segregation Principle
+* 依赖反转原则 Dependency Inversion Principle
+
+## 设计模式核心思想-
+
+*封装变化*
+
+但在实际开发中，不发生变化的代码可以说是不存在的。我们能做的只有将这个变化造成的影响**最小化** —— **将变与不变分离，确保变化的部分灵活、不变的部分稳定**。
+
+## 设计模式类型
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/pattern-type.png" alt="pattern-type" style="zoom:33%;" />
+
+# 构造模式
+
+```javascript
+function user (name, age, career) {
+  this.name = name
+  this.age = age
+  this.career = career
+}
+
+const john = new user('john', 18, '前端')
+const tom = new user('tom', 18, '后端')
+```
+
+像 User 这样当新建对象的内存被分配后，用来初始化该对象的特殊函数，就叫做构造器。在 JavaScript 中，我们使用构造函数去初始化对象，就是应用了**构造器模式**。
+
+**在创建一个user过程中，谁变了，谁不变？**
+
+很明显，变的是每个user的姓名、年龄、工种这些值，这是用户的**个性**，不变的是每个员工都具备姓名、年龄、工种这些属性，这是用户的**共性**。
+
+**那么构造器做了什么？**
+
+构造器是不是将属性赋值给对象的过程封装，确保了每个对象都具备这些属性，确保了**共性**的不变，同时将 属性操作开放，确保了**个性**的灵活！
+
+# 工厂模式
+
+工厂模式其实就是**将创建对象的过程单独封装**。
+
+## 简单工厂模式
+
+```javascript
+function user = (name, age, career, work) {
+  this.name = name
+  this.age = age
+  this.carrer = career
+  this.work = work
+}
+
+function Factory = (name, age, career) {
+  let work
+  
+  switch (career) {
+    case 'coder':
+      work = ['code', 'bug']
+      break
+    case 'tester': 
+      work = ['test']
+      break
+    case: 'boss'
+      work = ['read paper', 'tea']
+      break
+    ....
+  }
+  
+  return new user(name, age, career, work)
+}
+```
+
+工厂模式的目的，就是为了实现**无脑传参**
+
+##  抽象工厂模式--开放封闭原则
+
+**抽象工厂不干活，只暴露接口，具体工厂（ConcreteFactory）来干活**
+
+==抽象工厂接口暴露接口==
+
+```javascript
+// 抽象工厂暴露接口
+
+class MobilePhoneFactory {
+  // 操作系统接口
+  createOS () {
+    throw new Error('抽象工厂不允许直接调用，需要重写')
+  }
+  // 硬件接口
+  createHardware () {
+    throw new Error('抽象工厂不允许直接调用，需要重写')
+  }
+}
+
+// 操作系统抽象类
+class OS {
+  controlHardWare() {
+    throw new Error('抽象产品方法不允许直接调用，你需要将我重写！');
+  }
+}
+
+// 定义手机硬件这类产品的抽象产品类
+class HardWare {
+  // 手机硬件的共性方法，这里提取了“根据命令运转”这个共性
+  operateByOrder() {
+    throw new Error('抽象产品方法不允许直接调用，你需要将我重写！');
+  }
+}
+```
+
+==具体工厂继承抽象工厂并实现接口==
+
+```javascript
+class FakestarFactory extends MobilePhoneFactory {
+  createOS () {
+    return new AndroidOS()
+  }
+  
+  createHardware () {
+    return new QualcommHardWare()
+  }
+}
+
+// 定义具体操作系统的具体产品类
+class AndroidOS extends OS {
+  controlHardWare() {
+    console.log('我会用安卓的方式去操作硬件')
+  }
+}
+
+class AppleOS extends OS {
+  controlHardWare() {
+    console.log('我会用苹果的方式去操作硬件')
+  }
+}
+
+// 定义具体硬件的具体产品类
+class QualcommHardWare extends HardWare {
+  operateByOrder() {
+    console.log('我会用高通的方式去运转')
+  }
+}
+
+class MiWare extends HardWare {
+  operateByOrder() {
+    console.log('我会用小米的方式去运转')
+  }
+}
+```
+
+==最后实现==
+
+```javascript
+// 创建手机
+const myPhone = new FakeStarFactory()
+// 拥有操作系统
+const myOS = myPhone.createOS()
+// 拥有硬件
+const myHardWare = myPhone.createHardWare()
+// 启动操作系统(输出‘我会用安卓的方式去操作硬件’)
+myOS.controlHardWare()
+// 唤醒硬件(输出‘我会用高通的方式去运转’)
+myHardWare.operateByOrder()
+```
+
+假如有一天，FakeStar过气了，我们需要产出一款新机投入市场，这时候怎么办？我们是不是**不需要对抽象工厂MobilePhoneFactory做任何修改**，只需要拓展它的种类
+
+这么个操作，**对原有的系统不会造成任何潜在影响** 所谓的“对拓展开放，对修改封闭”就这么圆满实现了。前面我们之所以要实现**抽象产品类**，也是同样的道理。
+
+## 总结
+
+抽象工厂和简单工厂它们的共同点，在于都**尝试去分离一个系统中变与不变的部分**。它们的不同在于**场景的复杂度**。
+
+抽象工厂模式的定义，是**围绕一个超级工厂创建其他工厂**
+
+# 单例模式
+
+**保证一个类仅有一个实例，并提供一个访问它的全局访问点**，这样的模式就叫做单例模式。
+
+而单例模式想要做到的是，**不管我们去创建多少次，它都只给你返回第一次所创建的那唯一的一个实例**。
+
+```javascript
+// 1、class 实现方式
+
+class SingleDog {
+  show() {
+    console.log('我是一个单例对象')
+  }
+  static getInstance() {
+    // 判断是否已经new过1个实例
+    if (!SingleDog.instance) {
+      // 若这个唯一的实例不存在，那么先创建它
+      SingleDog.instance = new SingleDog()
+    }
+    // 如果这个唯一的实例已经存在，则直接返回
+    return SingleDog.instance
+  }
+}
+
+const s1 = SingleDog.getInstance()
+const s2 = SingleDog.getInstance()
+
+// true
+s1 === s2
+
+// 2、闭包实现方式
+SingleDog.getInstance = (function() {
+    // 定义自由变量instance，模拟私有变量
+    let instance = null
+    return function() {
+        // 判断自由变量是否为null
+        if(!instance) {
+            // 如果为null则new出唯一实例
+            instance = new SingleDog()
+        }
+        return instance
+    }
+})()
+```
+
+## 例子1、实现一个storage
+
+> 实现Storage，使得该对象为单例，基于 localStorage 进行封装。实现方法 setItem(key,value) 和 getItem(key)。
+
+```javascript
+// 定义Storage
+class Storage {
+    static getInstance() {
+        // 判断是否已经new过1个实例
+        if (!Storage.instance) {
+            // 若这个唯一的实例不存在，那么先创建它
+            Storage.instance = new Storage()
+        }
+        // 如果这个唯一的实例已经存在，则直接返回
+        return Storage.instance
+    }
+    getItem (key) {
+        return localStorage.getItem(key)
+    }
+    setItem (key, value) {
+        return localStorage.setItem(key, value)
+    }
+}
+
+const storage1 = Storage.getInstance()
+const storage2 = Storage.getInstance()
+
+storage1.setItem('name', '李雷')
+// 李雷
+storage1.getItem('name')
+// 也是李雷
+storage2.getItem('name')
+
+// 返回true
+storage1 === storage2
+```
+
+## 例子2、实现一个全局的模态框
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>单例模式弹框</title>
+</head>
+<style>
+    #modal {
+        height: 200px;
+        width: 200px;
+        line-height: 200px;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border: 1px solid black;
+        text-align: center;
+    }
+</style>
+<body>
+	<button id='open'>打开弹框</button>
+	<button id='close'>关闭弹框</button>
+</body>
+<script>
+    // 核心逻辑，这里采用了闭包思路来实现单例模式
+    const Modal = (function() {
+    	let modal = null
+    	return function() {
+        if(!modal) {
+          modal = document.createElement('div')
+          modal.innerHTML = '我是一个全局唯一的Modal'
+          modal.id = 'modal'
+          modal.style.display = 'none'
+          document.body.appendChild(modal)
+        }
+        return modal
+    	}
+    })()
+    
+    // 点击打开按钮展示模态框
+    document.getElementById('open').addEventListener('click', function() {
+        // 未点击则不创建modal实例，避免不必要的内存占用;此处不用 new Modal 的形式调用也可以
+    	const modal = new Modal()
+    	modal.style.display = 'block'
+    })
+    
+    // 点击关闭按钮隐藏模态框
+    document.getElementById('close').addEventListener('click', function() {
+    	const modal = new Modal()
+    	if(modal) {
+    	    modal.style.display = 'none'
+    	}
+    })
+</script>
+</html>
+```
+
+# 原型模式
+
+原型模式不仅是一种设计模式，它还是一种**编程范式**（programming paradigm），是 JavaScript 面向对象系统实现的根基。
+
+在 JavaScript 中，我们使用原型模式，并不是为了得到一个副本，而是为了得到与构造函数（类）相对应的类型的实例、实现数据/方法的共享。克隆是实现这个目的的方法，但克隆本身并不是我们的目的。
+
+## JavaScript 中的“类”
+
+==ES6 的类其实是原型继承的语法糖:==
+
+> ECMAScript 2015 中引入的 JavaScript 类实质上是 JavaScript 现有的基于原型的继承的语法糖。类语法不会为 JavaScript 引入新的面向对象的继承模型。 ——MDN
+
+当我们尝试用 class 去定义一个 Dog 类时：
+
+```javascript
+class Dog {
+  constructor(name ,age) {
+   this.name = name
+   this.age = age
+  }
+  
+  eat() {
+    console.log('肉骨头真好吃')
+  }
+}
+```
+
+其实完全等价于写了这么一个构造函数:
+
+```javascript
+function Dog(name, age) {
+  this.name = name
+  this.age = age
+}
+
+Dog.prototype.eat = function() {
+  console.log('肉骨头真好吃')
+}
+```
+
+## 谈原型模式，其实是谈原型范式
+
+原型编程范式的核心思想就是**利用实例来描述对象，用实例作为定义对象和继承的基础**。在 JavaScript 中，原型编程范式的体现就是**基于原型链的继承**。这其中，对原型、原型链的理解是关键。
+
+### 原型
+
+在 JavaScript 中，每个构造函数都拥有一个`prototype`属性，它指向构造函数的原型对象，这个原型对象中有一个 constructor 属性指回构造函数；每个实例都有一个`__proto__`属性，当我们使用构造函数去创建实例时，实例的`__proto__`属性就会指向构造函数的原型对象。
+
+```javascript
+// 创建一个Dog构造函数
+function Dog(name, age) {
+  this.name = name
+  this.age = age
+}
+
+Dog.prototype.eat = function() {
+  console.log('肉骨头真好吃')
+}
+
+// 使用Dog构造函数创建dog实例
+const dog = new Dog('旺财', 3)
+
+dog.__proto__
+{eat: ƒ, constructor: ƒ}
+
+dog.__proto__ === Dog.prototype // true
+
+Dog.prototype.constructor.name === 'Dog'
+dog.constructor.name === 'Dog'
+```
+
+### 原型链
+
+```javascript
+// 输出"肉骨头真好吃"
+dog.eat()
+// 输出"[object Object]"
+dog.toString(
+```
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/prototype.png" alt="prototype" style="zoom:50%;" />
+
+### 对象的深拷贝
+
+浅拷贝就是只进行一层拷贝，深拷贝就是无限层级拷贝
+
+#### JSON.stringify()
+
+```javascript
+const liLei = {
+    name: 'lilei',
+    age: 28,
+    habits: ['coding', 'hiking', 'running']
+}
+
+const liLeiStr = JSON.stringify(liLei)
+const liLeiCopy = JSON.parse(liLeiStr)
+liLeiCopy.habits.splice(0, 1) 
+console.log('李雷副本的habits数组是', liLeiCopy.habits)
+console.log('李雷的habits数组是',  liLei.habits)
+```
+
+*局限性*
+
+只能执行严格的JSON对象，无法处理function、正则等特殊情况
+
+#### 递归实现
+
+```javascript
+function deepClone(obj) {
+    // 如果是 值类型 或 null，则直接return
+    if(typeof obj !== 'object' || obj === null) {
+        return obj
+    }
+    
+    // 定义结果对象
+    let copy = {}
+    
+    // 如果对象是数组，则定义结果数组
+    if(obj.constructor === Array) {
+        copy = []
+    }
+    
+    // 遍历对象的key
+    for(let key in obj) {
+        // 如果key是对象的自有属性
+        if(obj.hasOwnProperty(key)) {
+            // 递归调用深拷贝方法
+            copy[key] = deepClone(obj[key])
+        }
+    }
+    
+    return copy
+} 
+```
+
+[深拷贝终极探索](https://segmentfault.com/a/1190000016672263)
+
+# 装饰器模式
+
+> “在不改变原对象的基础上，通过对其进行包装拓展，使原有对象可以满足用户的更复杂需求”。
+
+简而言之，就是：
+
+- 为对象添加新功能
+- 不改变其原有的结构和功能
+
+```javascript
+class Circle {
+    draw(){
+        console.log("画一个圆形");
+    }
+}
+
+class Decorator {
+    constructor(circle){
+        this.circle = circle;
+    }
+
+    draw(circle){
+        this.circle.draw();
+        this.setRedBorder(circle);
+    }
+
+    setRedBorder(circle){
+        console.log("设置红色边框");
+    }
+}
+
+//测试代码
+let circle = new Circle();
+circle.draw(); //画了一个圆形
+
+//装饰器的作用
+let decorator = new Decorator();
+decorator.draw(circle); //画了一个圆形，并设置了红色边框
+```
+
+## ES7中的装饰器
+
+### 类装饰器
+
+```javascript
+// 装饰器函数，它的第一个参数是目标类
+function classDecorator(target) {
+  	// 此处的 target 就是被装饰的类本身。
+    target.hasDecorator = true
+  	return target
+}
+
+// 将装饰器“安装”到Button类上
+@classDecorator
+class Button {
+    // Button类的相关逻辑
+}
+
+// 验证装饰器是否生效
+console.log('Button 是否被装饰了：', Button.hasDecorator)
+```
+
+### 方法装饰器
+
+```javascript
+/**
+*	target是Button.prototype
+* name是我们修饰的目标属性属性名
+* descriptor：属性描述对象”（attributes object）
+*/
+function funcDecorator(target, name, descriptor) {
+  let originalMethod = descriptor.value
+  descriptor.value = function() {
+    console.log('我是Func的装饰器逻辑')
+    return originalMethod.apply(this, arguments)
+  }
+  return descriptor
+}
+
+class Button {
+    @funcDecorator
+    onClick() { 
+        console.log('我是Func的原有逻辑')
+    }
+}
+
+// 验证装饰器是否生效
+const button = new Button()
+button.onClick()
+```
+
+## 生产实战
+
+### React Hoc
+
+> 高阶组件就是一个函数，且该函数接受一个组件作为参数，并返回一个新的组件。
+
+```javascript
+import React, { Component } from 'react'
+
+const BorderHoc = WrappedComponent => class extends Component {
+  render() {
+    return <div style={{ border: 'solid 1px red' }}>
+      <WrappedComponent />
+    </div>
+  }
+}
+export default borderHoc
+
+//import React, { Component } from 'react'
+//import BorderHoc from './BorderHoc'
+
+// 用BorderHoc装饰目标组件
+@BorderHoc 
+class TargetComponent extends React.Component {
+  render() {
+    // 目标组件具体的业务逻辑
+  }
+}
+
+// export出去的其实是一个被包裹后的组件
+export default TargetComponent
+```
+
+### 使用装饰器改写 Redux connect
+
+redux  connect 的两个入参：`mapStateToProps` 是一个函数，它可以建立组件和状态之间的映射关系；`mapDispatchToProps`也是一个函数，它用于建立组件和`store.dispatch`的关系，使组件具备通过 dispatch 来派发状态的能力。
+
+把 connect 抽出来：
+
+```javascript
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+import action from './action.js'
+
+function mapStateToProps(state) {
+  return state.app
+}
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators(action, dispatch)
+}
+
+// 将connect调用后的结果作为一个装饰器导出
+export default connect(mapStateToProps, mapDispatchToProps)
+```
+
+在组件文件里引入connect：
+
+```javascript
+import React, { Component } from 'react'
+import connect from './connect.js'   
+
+@connect
+export default class App extends Component {
+  render() {
+    // App的业务逻辑
+  }
+}
+```
+
+
+
+### 优质源码阅读
+
+[core-decorators](https://github.com/jayphelps/core-decorators)
+
+# 适配器模式
+
+适配器模式通过**把一个类的接口变换成客户端所期待的另一种接口**，可以帮我们解决**不兼容**的问题。
+
+```javascript
+function getDefaultAdapter() {
+  var adapter;
+  // 判断当前是否是node环境
+  if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
+    // 如果是node环境，调用node专属的http适配器
+    adapter = require('./adapters/http');
+  } else if (typeof XMLHttpRequest !== 'undefined') {
+    // 如果是浏览器环境，调用基于xhr的适配器
+    adapter = require('./adapters/xhr');
+  }
+  return adapter;
+}
+
+
+// http 适配器：
+module.exports = function httpAdapter(config) {
+  return new Promise(function dispatchHttpRequest(resolvePromise, rejectPromise) {
+    // 具体逻辑
+  }
+}
+                     
+// xhr 适配器：
+module.exports = function xhrAdapter(config) {
+  return new Promise(function dispatchXhrRequest(resolve, reject) {
+    // 具体逻辑
+  }
+}                     
+```
+
+# 代理模式
+
+一个对象**不能直接访问**另一个对象，需要一个**第三者**（代理）牵线搭桥从而间接达到访问目的，这样的模式就是代理模式。
+
+## 科学上网
+
+*正常的上网流程*
+
+![屏幕快照 2021-01-09 下午3.38.10](https://gitee.com/inkkk0516/typora/raw/master/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202021-01-09%20%E4%B8%8B%E5%8D%883.38.10.png)
+
+*使用vpn*
+
+![屏幕快照 2021-01-09 下午3.39.35](https://gitee.com/inkkk0516/typora/raw/master/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202021-01-09%20%E4%B8%8B%E5%8D%883.39.35.png)
+
+## ES6 Proxy
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202021-01-09%20%E4%B8%8B%E5%8D%884.00.11.png" alt="屏幕快照 2021-01-09 下午4.00.11" style="zoom:33%;" />
+
+```javascript
+const proxy = new Proxy(obj, handler)
+// 第一个参数是我们的目标对象，handler 也是一个对象，用来定义代理的行为，当我们通过 proxy 去访问目标对象的时候，handler会对我们的行为作一层拦截，我们的每次访问都需要经过 handler 这个第三方
+```
+
+## 事件代理
+
+父节点 代理子节点
+
+用代理模式实现多个子元素的事件监听
+
+```javascript
+// 获取父元素
+const father = document.getElementById('father')
+
+// 给父元素安装一次监听函数
+father.addEventListener('click', function(e) {
+    // 识别是否是目标子元素
+    if(e.target.tagName === 'A') {
+        // 以下是监听函数的函数体
+        e.preventDefault()
+        alert(`我是${e.target.innerText}`)
+    }
+} )
+```
+
+## 虚拟代理
+
+**图片懒加载**
+
+在一些图片量比较大的网站，比如电商网站首页，或者团购网站、小游戏首页等。如果我们尝试在用户打开页面的时候，就把所有的图片资源加载完毕，那么很可能会造成白屏、卡顿等现象。
+
+此时我们会采取“先占位、后加载”的方式来展示图片 —— 在元素露出之前，我们给它一个 div 作占位，当它滚动到可视区域内时，再即时地去加载真实的图片资源，这样做
+
+**图片预加载**
+
+预加载主要是为了避免网络不好、或者图片太大时，页面长时间给用户留白的尴尬。常见的操作是先让这个 img 标签展示一个占位图，然后创建一个 Image 实例，让这个 Image 实例的 src 指向真实的目标图片地址、观察该 Image 实例的加载情况 —— 当其对应的真实图片加载完毕后，即已经有了该图片的缓存内容，再将 DOM 上的 img 元素的 src 指向真实的目标图片地址。
+
+```javascript
+class PreLoadImage {
+    constructor(imgNode) {
+        // 获取真实的DOM节点
+        this.imgNode = imgNode
+    }
+     
+    // 操作img节点的src属性
+    setSrc(imgUrl) {
+        this.imgNode.src = imgUrl
+    }
+}
+
+class ProxyImage {
+    // 占位图的url地址
+    static LOADING_URL = 'xxxxxx'
+
+    constructor(targetImage) {
+        // 目标Image，即PreLoadImage实例
+        this.targetImage = targetImage
+    }
+    
+    // 该方法主要操作虚拟Image，完成加载
+    setSrc(targetUrl) {
+       // 真实img节点初始化时展示的是一个占位图
+        this.targetImage.setSrc(ProxyImage.LOADING_URL)
+        // 创建一个帮我们加载图片的虚拟Image实例
+        const virtualImage = new Image()
+        // 监听目标图片加载的情况，完成时再将DOM上的真实img节点的src属性设置为目标图片的url
+        virtualImage.onload = () => {
+            this.targetImage.setSrc(targetUrl)
+        }
+        // 设置src属性，虚拟Image实例开始加载图片
+        virtualImage.src = targetUrl
+    }
+}
+
+new ProxyImage(new PreLoadImage(document.getElementById('xxx')))
+```
+
+
+
+## 缓存代理
+
+缓存代理应用于一些计算量较大的场景里。在这种场景下，我们需要“用空间换时间”——当我们需要用到某个已经计算过的值的时候，不想再耗时进行二次计算，而是希望能从内存里去取出现成的计算结果。这种场景下，就需要一个代理来帮我们在进行计算的同时，进行计算结果的缓存了。
+
+```javascript
+// addAll方法会对你传入的所有参数做求和操作
+const addAll = function() {
+    console.log('进行了一次新计算')
+    let result = 0
+    const len = arguments.length
+    
+    for(let i = 0; i < len; i++) {
+        result += arguments[i]
+    }
+    return result
+}
+
+// 为求和方法创建代理
+const proxyAddAll = (function(){
+    // 求和结果的缓存池
+    const resultCache = {}
+    return function() {
+        // 将入参转化为一个唯一的入参字符串
+        const args = Array.prototype.join.call(arguments, ',')
+        
+        // 检查本次入参是否有对应的计算结果
+        if(args in resultCache) {
+            // 如果有，则返回缓存池里现成的结果
+            return resultCache[args]
+        }
+        return resultCache[args] = addAll(...arguments)
+    }
+})()
+
+```
+
+## 保护代理
+
+在 getter 和 setter 函数里去进行校验和拦截，确保一部分变量是安全的。ES6 Proxy
+
+# 策略模式
+
+> 定义一系列的算法,把它们一个个封装起来, 并且使它们可相互替换。
+
+```javascript
+// 定义一个询价处理器对象
+const priceProcessor = {
+  pre(originPrice) {
+    if (originPrice >= 100) {
+      return originPrice - 20;
+    }
+    return originPrice * 0.9;
+  },
+  onSale(originPrice) {
+    if (originPrice >= 100) {
+      return originPrice - 30;
+    }
+    return originPrice * 0.8;
+  },
+  back(originPrice) {
+    if (originPrice >= 200) {
+      return originPrice - 50;
+    }
+    return originPrice;
+  },
+  fresh(originPrice) {
+    return originPrice * 0.5;
+  },
+};
+
+// 询价函数
+function askPrice(tag, originPrice) {
+  return priceProcessor[tag](originPrice)
+}
+
+// 新增一个新人价格算法
+priceProcessor.newUser = function (originPrice) {
+  if (originPrice >= 100) {
+    return originPrice - 50;
+  }
+  return originPrice;
+}
+```
+
+# 状态模式
+
+> 状态模式主要解决的是当控制一个对象状态的条件表达式过于复杂时的情况。把状态的判断逻辑转移到表示不同状态的一系列类中，可以把复杂的判断逻辑简化。
+
+```javascript
+class CoffeeMaker {
+  constructor() {
+    /**
+    这里略去咖啡机中与咖啡状态切换无关的一些初始化逻辑
+  **/
+    // 初始化状态，没有切换任何咖啡模式
+    this.state = 'init';
+    // 初始化牛奶的存储量
+    this.leftMilk = '500ml';
+  }
+  stateToProcessor = {
+    that: this,
+    american() {
+      // 尝试在行为函数里拿到咖啡机实例的信息并输出
+      console.log('咖啡机现在的牛奶存储量是:', this.that.leftMilk)
+      console.log('我只吐黑咖啡');
+    },
+    latte() {
+      this.american()
+      console.log('加点奶');
+    },
+    vanillaLatte() {
+      this.latte();
+      console.log('再加香草糖浆');
+    },
+    mocha() {
+      this.latte();
+      console.log('再加巧克力');
+    }
+  }
+
+  // 关注咖啡机状态切换函数
+  changeState(state) {
+    this.state = state;
+    if (!this.stateToProcessor[state]) {
+      return;
+    }
+    this.stateToProcessor[state]();
+  }
+}
+
+const mk = new CoffeeMaker();
+mk.changeState('latte');
+```
+
+# 观察者模式
+
+发布 - 订阅模式
+
+> 观察者模式定义了一种一对多的依赖关系，让多个观察者对象同时监听某一个目标对象，当这个目标对象的状态发生变化时，会通知所有观察者对象，使它们能够自动更新。 —— Graphic Design Patterns
+
+首先我们来看这个代表发布者的类，我们给它起名叫Publisher。这个类应该具备哪些“基本技能”呢？大家回忆一下上文中的韩梅梅，韩梅梅的基本操作是什么？首先是拉群（增加订阅者），然后是@所有人（通知订阅者），这俩是最明显的了。此外作为群主&产品经理，韩梅梅还具有踢走项目组成员（移除订阅者）的能力。
+
+```javascript
+// 定义发布者类
+class Publisher {
+  constructor() {
+    this.observers = []
+    console.log('Publisher created')
+  }
+  // 增加订阅者
+  add(observer) {
+    console.log('Publisher.add invoked')
+    this.observers.push(observer)
+  }
+  // 移除订阅者
+  remove(observer) {
+    console.log('Publisher.remove invoked')
+    this.observers.forEach((item, i) => {
+      if (item === observer) {
+        this.observers.splice(i, 1)
+      }
+    })
+  }
+  // 通知所有订阅者
+  notify() {
+    console.log('Publisher.notify invoked')
+    this.observers.forEach((observer) => {
+      observer.update(this)
+    })
+  }
+}
+```
+
+*创建订阅者类*
+
+```javascript
+// 定义订阅者类
+class Observer {
+    constructor() {
+        console.log('Observer created')
+    }
+
+    update() {
+        console.log('Observer.update invoked')
+    }
+}
+```
+
+**定义一个具体的需求文档（prd）发布类**
+
+```javascript
+// 定义一个具体的需求文档（prd）发布类
+class PrdPublisher extends Publisher {
+    constructor() {
+        super()
+        // 初始化需求文档
+        this.prdState = null
+        // 韩梅梅还没有拉群，开发群目前为空
+        this.observers = []
+        console.log('PrdPublisher created')
+    }
+    
+    // 该方法用于获取当前的prdState
+    getState() {
+        console.log('PrdPublisher.getState invoked')
+        return this.prdState
+    }
+    
+    // 该方法用于改变prdState的值
+    setState(state) {
+        console.log('PrdPublisher.setState invoked')
+        // prd的值发生改变
+        this.prdState = state
+        // 需求文档变更，立刻通知所有开发者
+        this.notify()
+    }
+}
+```
+
+*作为订阅方，开发者的任务也变得具体起来：接收需求文档、并开始干活：*
+
+```javascript
+class DeveloperObserver extends Observer {
+    constructor() {
+        super()
+        // 需求文档一开始还不存在，prd初始为空对象
+        this.prdState = {}
+        console.log('DeveloperObserver created')
+    }
+    
+    // 重写一个具体的update方法
+    update(publisher) {
+        console.log('DeveloperObserver.update invoked')
+        // 更新需求文档
+        this.prdState = publisher.getState()
+        // 调用工作函数
+        this.work()
+    }
+    
+    // work方法，一个专门搬砖的方法
+    work() {
+        // 获取需求文档
+        const prd = this.prdState
+        // 开始基于需求文档提供的信息搬砖。。。
+        //...
+        console.log('996 begins...')
+    }
+}
+```
+
+*完整流程*
+
+```javascript
+// 创建订阅者：前端开发李雷
+const liLei = new DeveloperObserver()
+// 创建订阅者：服务端开发小A（sorry。。。起名字真的太难了）
+const A = new DeveloperObserver()
+// 创建订阅者：测试同学小B
+const B = new DeveloperObserver()
+// 韩梅梅出现了
+const hanMeiMei = new PrdPublisher()
+// 需求文档出现了
+const prd = {
+    // 具体的需求内容
+    ...
+}
+// 韩梅梅开始拉群
+hanMeiMei.add(liLei)
+hanMeiMei.add(A)
+hanMeiMei.add(B)
+// 韩梅梅发送了需求文档，并@了所有人
+hanMeiMei.setState(prd)
+```
+
+# 迭代器模式
+
+> 迭代器模式提供一种方法顺序访问一个聚合对象中的各个元素，而又不暴露该对象的内部表示。 ——《设计模式：可复用面向对象软件的基础》
+
+## ES6对迭代器的实现
+
+在“公元前”，JS原生的集合类型数据结构，只有Array（数组）和Object（对象）；而ES6中，又新增了Map和Set。四种数据结构各自有着自己特别的内部实现，但我们仍期待以同样的一套规则去遍历它们，所以ES6在推出新数据结构的同时也推出了一套**统一的接口机制**——迭代器（Iterator）。
+
+```javascript
+const arr = [1, 2, 3]
+// 通过调用iterator，拿到迭代器对象
+const iterator = arr[Symbol.iterator]()
+
+// 对迭代器对象执行next，就能逐个访问集合的成员
+iterator.next()
+iterator.next()
+iterator.next()
+```
+
+## 编写一个迭代器生成函数
+
+```javascript
+// 编写一个迭代器生成函数
+function *iteratorGenerator() {
+    yield '1号选手'
+    yield '2号选手'
+    yield '3号选手'
+}
+
+const iterator = iteratorGenerator()
+
+iterator.next()
+iterator.next()
+iterator.next()
+```
+
+```javascript
+// 定义生成器函数，入参是任意集合
+function iteratorGenerator(list) {
+    // idx记录当前访问的索引
+    var idx = 0
+    // len记录传入集合的长度
+    var len = list.length
+    return {
+        // 自定义next方法
+        next: function() {
+            // 如果索引还没有超出集合长度，done为false
+            var done = idx >= len
+            // 如果done为false，则可以继续取值
+            var value = !done ? list[idx++] : undefined
+            
+            // 将当前值与遍历是否完毕（done）返回
+            return {
+                done: done,
+                value: value
+            }
+        }
+    }
+}
+
+var iterator = iteratorGenerator(['1号选手', '2号选手', '3号选手'])
+iterator.next()
+iterator.next()
+iterator.next()
+```
+
+# 命令模式
+
+# 责任链模式
+
+# 享元模式
+
+# 设计模式相关书籍
+
+## Head First 设计模式（中文版）
+
+## 设计模式：可复用面向对象软件的基础

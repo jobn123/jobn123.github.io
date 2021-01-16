@@ -368,7 +368,7 @@ DDN 往往用来存储静态资源、就是像 JS、CSS、图片等**不需要�
 
 ## 浏览器渲染过程
 
-<img src="/Users/eleven/Desktop/inkkk/Advanced/performance-optimization/process.png" alt="process" style="zoom:50%;" />
+<img src="https://gitee.com/inkkk0516/typora/raw/master/process.png" alt="process" style="zoom:50%;" />
 
 * 解析HTML
 
@@ -392,7 +392,7 @@ DDN 往往用来存储静态资源、就是像 JS、CSS、图片等**不需要�
 
 ## 几棵重要的树
 
-<img src="/Users/eleven/Desktop/inkkk/Advanced/performance-optimization/tree.png" alt="tree" style="zoom:50%;" />
+<img src="https://gitee.com/inkkk0516/typora/raw/master/tree.png" alt="tree" style="zoom:50%;" />
 
 * DOM 树：解析 HTML 以创建的是 DOM 树（DOM tree ）：渲染引擎开始解析 HTML 文档，转换树中的标签到 DOM 节点，它被称为“内容树”。
 * CSSOM 树：解析 CSS（包括外部 CSS 文件和样式元素）创建的是 CSSOM 树。CSSOM 的解析过程与 DOM 的解析过程是**并行的**。
@@ -603,8 +603,6 @@ document.addEventListener('scroll', better_scroll)
 ```
 
 # lazyload
-
-# webpack
 
 # Performance、LightHouse 与性能 API
 
