@@ -4,7 +4,7 @@ title:      "Javascript设计模式"
 subtitle:   "🏗"
 date:       2021-01-04 12:00:00
 author:     "Hiz"
-header-img: "img/post-bg-2015.jpg"
+header-img: "img/post-bg-js-version.jpg"
 catalog: true
 tags:
     - 设计模式
