@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "log"
-subtitle:   "🗓 生活中的点滴 "
+subtitle:   "🗓"
 date:       2020-12-30 11:49:00
 author:     "Hiz"
 header-img: "img/home-bg-o.jpg"
@@ -10,5 +10,5 @@ header-img: "img/home-bg-o.jpg"
 > new journey
 
 ## 2020-12-30
-。
+如果你有正确的态度，有趣的事情自然会找到你。
 
