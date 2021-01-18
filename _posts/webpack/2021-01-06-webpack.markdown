@@ -2,9 +2,9 @@
 layout:     post
 title:      "webpack config简介"
 subtitle:   "📦"
-date:       2021-01-19 11:49:00
+date:       2021-01-06 11:49:00
 author:     "Hiz"
-header-img: "img/home-bg-o.jpg"
+header-img: "img/post-webpack-bg.png"
 tags:
     - webpack
 ---

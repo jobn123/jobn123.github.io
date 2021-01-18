@@ -1,0 +1,137 @@
+---
+layout:     post
+title:      "Nodejs实现微信分账"
+subtitle:   "💰"
+date:       2021-01-18 12:00:00
+author:     "Hiz"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+tags:
+    - Nodejs
+    - 微信
+---
+
+公司的业务的场景需要用到微信分账的功能、对着官网文档调试了一下午才调通、记录下使用Nodejs微信分账的流程。
+
+# 前提条件
+* 在微信商户平台 产品中心->我的产品，支付扩展工具中 开通分账的功能
+* 添加分账接收方。
+  这一步不设置的话回报一个*分账接收方关系不存在，请检查参数中每个接收方的关系。*错误
+* 在商户平台获取商户id和secrect
+* 需要将apiclient_cert.pem、 apiclient_key传到服务器某个目录下面
+
+# 具体实现
+
+```javascript
+
+// @router post -> share -> /common/payment/share
+async share() {
+  const { ctx } = this
+  const nonce_str = ctx.service.wx.randomStr()
+  // 商户id
+  const mch_id = '123456'
+  // x小程序appid
+  const appid = 'wx123456'
+  // 订单号
+  const out_order_no = '1609745196755nFvdMaYub2'
+  // 微信支付订单号
+  const transaction_id = '4200000801202101044301662433'
+  // 商户secrect
+  const key = '9813490da1ffb80afaa36f6f1265e490'
+
+  // 这一块的参数官网文档上有详细的说明
+  const params = {
+    appid,
+    mch_id,
+    nonce_str,
+    out_order_no,
+    receivers: `[{"account": "123qwe","amount": 1,"description": "description","type": "PERSONAL_OPENID"}]`,
+    sign_type: 'HMAC-SHA256',
+    transaction_id,
+  }
+
+  // 签名方式必须是HMAC-SHA256
+  const sign = ctx.service.wx.sign(params, key, 'HMAC-SHA256')
+
+  // xmlString
+  const formData = `<xml>
+    <appid>${appid}</appid>
+    <mch_id>${mch_id}</mch_id>
+    <nonce_str>${nonce_str}</nonce_str> 
+    <out_order_no>${out_order_no}</out_order_no>
+    <transaction_id>${transaction_id}</transaction_id>
+    <sign>${sign}</sign>
+    <sign_type>HMAC-SHA256</sign_type>
+    <receivers>${params.receivers}</receivers>
+  </xml>`
+
+  const res = await ctx.curl(
+    "https://api.mch.weixin.qq.com/secapi/pay/profitsharing",
+    {
+      // 需要使用证书apiclient_cert
+      cert: fs.readFileSync(path.join(__dirname,'../../../cert/apiclient_cert.pem')),
+      // 需要使用证书apiclient_key
+      key: fs.readFileSync(path.join(__dirname,'../../../cert/apiclient_key.pem')),
+      method: "post",
+      data: formData,
+    }
+  )
+
+  const datastring = res.data.toString()
+  xml2js.parseString(datastring, (err, result) => {
+    if (err) {
+      ctx.throw(422, err)
+    }
+
+    console.log(result)
+  })
+}
+
+
+// randomStr
+// 生成随机字符串
+randomStr(len = 24) {
+  const str =
+    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < len; i++) {
+    result += str[Math.floor(Math.random() * str.length)];
+  }
+  return result;
+}
+
+// 签名
+// mchKey是商户secrect，否则签名不通过
+sign(data, mchKey, signType = 'MD5') {
+  const keys = [];
+  for (const key in data) {
+    if (data[key] !== undefined) {
+      keys.push(key);
+    }
+  }
+  // 字典排序=>key=value
+  const stringA = keys
+    .sort()
+    .map(key => `${key}=${decodeURIComponent(data[key])}`)
+    .join('&');
+  // 拼接商户key
+  const stringSignTemp = stringA + '&key=' + mchKey;
+  // 加密
+  let hash;
+  if (signType === 'MD5') {
+    hash = crypto.createHash('md5').update(stringSignTemp);
+  } else {
+    hash = crypto.createHmac('sha256', mchKey).update(stringSignTemp, 'utf8');
+  }
+  
+  const paySign = hash.digest('hex').toUpperCase();
+  return paySign;
+}
+```
+
+如果遇到签名不通过的问题。可以将你生成的formData放到[接口签名校验工具](https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=20_1)进行逐步验证、
+
+![1610961537272](https://gitee.com/inkkk0516/typora/raw/master/1610961537272.jpg)
+
+[分账接口其他常见问题](https://developers.weixin.qq.com/community/pay/doc/000284823e8460aada68dacca5b008?blockType=8)
+
