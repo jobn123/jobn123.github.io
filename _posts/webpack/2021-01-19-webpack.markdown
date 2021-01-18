@@ -1,0 +1,111 @@
+---
+layout:     post
+title:      "webpack config简介"
+subtitle:   "📦"
+date:       2021-01-19 11:49:00
+author:     "Hiz"
+header-img: "img/home-bg-o.jpg"
+---
+
+# entry
+指定打包文件的入口
+
+```javascript
+// 单入口
+  entry: './src/index.js',
+// 多入口
+entry: {
+  index: './src/index.js',
+  hello: './src/hello.js'
+}
+```
+
+# output
+
+ 将编译后的文件输出到磁盘
+
+```javascript
+// 将编译后的文件输出到磁盘
+output: {
+  path: path.join(__dirname, 'dist'),
+  // 单入口输出配置 可指定文件的名称
+  // filename: 'bundle.js',
+  // 多入口输出配置
+  filename: '[name].js'
+},
+```
+
+# loaders
+
+webpack 开箱只支持JS和JSON两种类型，通过loaders去支持其他文件类型，并把它们转成有效的模块，添加到依赖视图中
+
+Loaders 本身是个函数，接收源文件作为参数，返回转化的结果
+
+## 常见的loader
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/%E6%88%AA%E5%B1%8F2021-01-18%20%E4%B8%8A%E5%8D%888.04.39.png" alt="截屏2021-01-18 上午8.04.39" style="zoom:50%;" />
+
+## loader配置
+
+```javascript
+// 配置loaders
+  module: {
+    rules: [
+      // test 指定匹配规则
+      // use指定使用的loader名称
+      {test: /\.txt$/, use: 'raw-loader'}
+      ...
+    ]
+  }
+```
+
+# plugins
+
+作用于整个构建过程，可以 用来处理文件优化，资源管理、环境变量注入等、
+
+loader处理不了的都可以交给plugins
+
+## 常用的plugins
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/%E6%88%AA%E5%B1%8F2021-01-18%20%E4%B8%8A%E5%8D%888.14.06.png" alt="截屏2021-01-18 上午8.14.06" style="zoom:50%;" />
+
+# mode
+
+mode用来指定当前的构建环境是： production、development、none
+
+## mode的内置函数功能
+
+![截屏2021-01-18 上午8.17.22](https://gitee.com/inkkk0516/typora/raw/master/%E6%88%AA%E5%B1%8F2021-01-18%20%E4%B8%8A%E5%8D%888.17.22.png)
+
+# 一个完整的webpack配置
+```javascript
+"use strict"
+const path = require('path')
+
+module.exports = {
+  // 单入口
+  entry: './src/index.js',
+  // 多入口
+  entry: {
+    index: './src/index.js',
+    hello: './src/hello.js'
+  },
+  // 配置loaders
+  module: {
+    rules: [
+      // test 指定匹配规则
+      // use指定使用的loader名称
+      {test: /\.txt$/, use: 'raw-loader'}
+    ]
+  },
+  // 将编译后的文件输出到磁盘
+  output: {
+    path: path.join(__dirname, 'dist'),
+    // 单入口输出配置
+    // filename: 'bundle.js',
+    // 多入口输出配置
+    filename: '[name].js'
+  },
+  mode: 'production'
+}
+```
