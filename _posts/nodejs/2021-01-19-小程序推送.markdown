@@ -1,0 +1,119 @@
+---
+layout:     post
+title:      "Nodejs实现微信小程序消息推送"
+subtitle:   " 📬 "
+date:       2021-01-19 12:00:00
+author:     "Hiz"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+tags:
+    - Nodejs
+    - 微信小程序
+---
+
+# 选择或创建订阅消息模板
+登录到微信小程序里面找到*功能->订阅消息*。可以在公共模板库里选择需要的模板，如果没有找到自己需要的也可以自己创建然后等待审核、
+
+选择完模板查看详情会得到模板ID,以及发送推送时需要的字段、
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/1611045929323.jpg" alt="1611045929323" style="zoom:50%;" />
+
+# 小程序发送订阅的请求
+
+需要用到上一步获取的模板Id
+
+```react
+// 小程序
+<Text className='rights-buy' onClick={this.messageSubmit}>
+  入驻申请
+</Text>
+
+// 入驻申请消息订阅
+messageSubmit = () => {
+  Taro.requestSubscribeMessage({
+    tmplIds: ['SuGMwqyYY9cocuP-LxfElcM3a7ITaF34lKNux6EaE9'],
+    success: (res) => {
+      // 调用服务端接口,在数据库写入一条订阅记录
+      // this.subscribeDeal()
+    }
+  })
+}
+```
+
+# 服务端发起推送
+推送一般有两种
+* 手动触发，例如审核未通过、然后调用推送接口、
+* 还有就是订阅消息后，达到某个条件自动触发推送、
+
+对于第一种情况，就直接调用微信的推送接口就好了。第二中情况稍微麻烦一点，可以加一个定时的任务，或者使用相关的队列库、等条件符合了再触发、
+
+**需要注意的地方**
+* 发送推送的时候需要用户的*openid*,以及模板id。具体的推送内容字段，在第一步模板详情里面可以查看、
+* 调用微信推送的接口的时候需要*access_token*，最好缓存一下，频繁调用会有失效的问题、
+
+获取access_token并缓存
+```javascript
+async getAccessToken () {
+  const { appId, appSecert, host } = this.app.config.idolWxAConfig;
+
+  return new Promise(async (resolve) => {
+    const currentTime = new Date().getTime()
+
+    const redisToken = await this.app.redis.get('wxtoken').get('token') || '{access_token: "", expries_time: 0}'
+    const accessTokenJson = JSON.parse(redisToken)
+
+    if (accessTokenJson.access_token === '' || accessTokenJson.expries_time < currentTime) {
+      const res = await this.ctx.curl(`${host}/cgi-bin/token?appid=${appId}&secret=${appSecert}&grant_type=client_credential`, { dataType: 'json' })
+
+      if (res.data) {
+
+        accessTokenJson.access_token = res.data.access_token
+        accessTokenJson.expries_time = new Date().getTime() + (parseInt(res.data.expires_in) - 200) * 1000
+
+        await this.app.redis.get('wxtoken').set('token', JSON.stringify(accessTokenJson))
+        resolve(accessTokenJson)
+      }
+    } else {
+      resolve(accessTokenJson)
+    }
+  })
+}
+```
+向微信发送推送请求
+```javascript
+async sendSubscribeMsg (openid) {
+
+  let requestData = {
+    "touser": `${openid}`,
+    "template_id": "SuGMwqyYY9cocuP-LxfElcM3a7ITaF34lKNux6EaE9",
+    "page": `/pages/certification/index`,
+    "data": {
+        "phrase2": {
+          "value": `审核通过`
+        },
+        "thing3": {
+          "value": `您的申请已经审核通过`
+        }
+    }
+  }
+
+  const { host } = this.app.config.idolWxAConfig;
+  // 获取access_toekn
+  const tokenJson = await this.ctx.service.wx.getAccessToken()
+  const res = await this.ctx.curl(`${host}/cgi-bin/message/subscribe/send?access_token=${tokenJson.access_token}
+  `, {
+    method: 'POST',
+    contentType: 'json',
+    data: requestData,
+    dataType: 'json'
+  });
+
+  if (res.data.errmsg === 'ok') {
+    console.log('========推送成功========')
+    // TODO
+  } else {
+    console.log('========推送失败========')
+    // TODO
+  }
+}
+```
