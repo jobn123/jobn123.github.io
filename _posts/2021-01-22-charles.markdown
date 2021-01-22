@@ -1,0 +1,48 @@
+---
+layout:     post
+title:      "IOS使用Charles抓包支持HTTPS"
+subtitle:   " 🍶 "
+date:       2021-01-22 11:49:00
+author:     "Hiz"
+header-img: "img/home-bg-o.jpg"
+tags:
+    - 工具
+    - charles
+---
+
+# 前言
+
+[Charles](https://www.charlesproxy.com/)是一款用于HTTP信息抓包工具，可以快速有效的获得HTTP信息，Charles 有着可视化的操作界面，非常利于开发者的网页、移动端、开发和调试修改等！
+
+当使用移动端抓取https接口的数据时，需要安装证书才可以。
+
+# ios 配置 Charles 证书
+*  移动端配置代理
+
+  <img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210122175916802.png" alt="image-20210122175916802" style="zoom:50%;" />
+
+* 下载证书
+
+  ![image-20210122180534210](https://gitee.com/inkkk0516/typora/raw/master/image-20210122180534210.png)
+
+  ![截屏2021-01-22 下午5.49.35](https://gitee.com/inkkk0516/typora/raw/master/%E6%88%AA%E5%B1%8F2021-01-22%20%E4%B8%8B%E5%8D%885.49.35.png)
+
+* 在手机浏览器输入 *chls.pro/ssl* 下载证书
+
+  <img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210122180752665.png" alt="image-20210122180752665" style="zoom:33%;" />
+
+* 在手机上添加描述文件 设置 -> 通用 -> 描述文件
+
+  <img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210122181102768.png" alt="image-20210122181102768" style="zoom:50%;" />
+
+* 信任证书 设置 -> 关于本机 -> 证书信任设置
+
+  <img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210122181320718.png" alt="image-20210122181320718" style="zoom:50%;" />
+
+  
+
+* 最后一步 右键你想要抓取的地址，选择*SSL Proxying Enabled*
+
+  <img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210122181548901.png" alt="image-20210122181548901" style="zoom:50%;" />
+
+*全部设置完成之后需要重启charles才可以！*
