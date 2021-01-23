@@ -1,0 +1,69 @@
+---
+layout:     post
+title:      "vscode 常用命令"
+subtitle:   " ⌨️ "
+date:       2021-01-07 11:49:00
+author:     "Hiz"
+header-img: "img/home-bg-o.jpg"
+tags:
+    - 工具
+    - vscode
+---
+
+## 当前行上移或者下移
+
+```shell
+option + 键盘上下键
+```
+
+## 向上或者向下复制行
+
+```shell
+option + shift + 键盘上下键
+```
+
+## 向上或者向下插入行
+
+```shell
+# 向上
+command + shift + enter
+# 向下
+command + shift + enter
+```
+
+## 选择多行
+
+```shell
+option + 鼠标点击行
+```
+
+## 选择当前行
+
+```shell
+command + L
+```
+
+## 选择多行
+
+```shell
+shift + 键盘上下键
+```
+
+## 选中文本出现的所有地方
+
+```shell
+shift + command + L
+```
+
+## 选择方形文本区域
+
+```shell
+shift + option + 鼠标选择
+```
+
+## 显示代码提示
+与输入法快捷键冲突，需要修改热键重新配置
+
+```shell
+option + /
+```
