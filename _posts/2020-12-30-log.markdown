@@ -4,10 +4,13 @@ title:      "log"
 subtitle:   "🗓"
 date:       2020-12-30 11:49:00
 author:     "Hiz"
-header-img: "img/home-bg-o.jpg"
+header-img: "img/about-bg-walle.jpg"
 ---
 
 > new journey...
+
+## 2021-01-23
+行动是通往知识的唯一道路。 —— 萧伯纳
 
 ## 2021-01-21
 * 承认别人优秀。
