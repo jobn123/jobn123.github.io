@@ -1,0 +1,200 @@
+---
+layout:     post
+title:      "CSS Gird 布局"
+subtitle:   " 🀡 "
+date:       2021-01-23 11:49:00
+author:     "Hiz"
+header-img: "img/post-bg-css.jpg"
+tags:
+    - CSS
+---
+
+css grid 布局是二维布局方式，可以同时控制行和列的排布、和对齐方式。
+
+*开启grid布局，父元素设置grid*
+
+```css
+.grid {
+  display: grid
+}
+```
+
+## grid-template-columns
+
+* 指定列固定宽度
+
+```
+.grid {
+	display: grid;
+	grid-template-columns: 100px 100px 100px;
+}
+```
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210123102721664.png" alt="image-20210123102721664" style="zoom:50%;" />
+
+* fr指定列浮动宽度 
+
+```css
+.grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+}
+```
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210123103134695.png" alt="image-20210123103134695" style="zoom:50%;" />
+
+如果想让中间部分占据二分之一的位置将其设置为2fr
+
+```
+.grid {
+	display: grid;
+	grid-template-columns: 1fr 2fr 1fr;
+}
+```
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210123103356386.png" alt="image-20210123103356386" style="zoom:50%;" />
+
+## gap column-gap row-gap
+
+设置间距
+
+```css
+.grid {
+	display: grid;
+	grid-template-columns: 1fr 2fr 1fr;
+  /* 设置列间距 */
+  column-gap: 10px;
+  /* 设置行间距 */
+  row-gap: 10px;
+  /* gap: 10px; 行、列间距的混合体*/
+}
+```
+
+gap: 10px 就等于column-gap: 10px; row-gap: 10px;的简写
+
+## align-items 
+
+垂直方向对齐子元素
+
+```CSS
+.grid {
+	display: grid;
+	grid-template-columns: 1fr 2fr 1fr;
+  gap: 10px;
+	align-items: center;
+}
+```
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210123105913234.png" alt="image-20210123105913234" style="zoom:50%;" />
+
+*align-items: end;*
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210123110055665.png" alt="image-20210123110055665" style="zoom:50%;" />
+
+## jusitify-items
+
+```css
+.grid {
+	display: grid;
+	grid-template-columns: 1fr 2fr 1fr;
+  gap: 10px;
+	jusitify-items: center;
+}
+```
+
+
+
+水平方向对齐子元素
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210123105652905.png" alt="image-20210123105652905" style="zoom:50%;" />
+
+*jusitify-items: end*
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210123110241321.png" alt="image-20210123110241321" style="zoom:50%;" />
+
+## align-content
+
+对垂直方向的轨道对齐
+
+```css
+.grid {
+	display: grid;
+	grid-template-columns: 1fr 2fr 1fr;
+  gap: 10px;
+	align-contents: center;
+}
+```
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210123111935950.png" alt="image-20210123111935950" style="zoom:50%;" />
+
+*align-content: end;*
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210123112020085.png" alt="image-20210123112020085" style="zoom:50%;" />
+
+## justify-content
+
+对横向方向的轨道对齐
+
+```css
+.grid {
+	display: grid;
+	grid-template-columns: 1fr 2fr 1fr;
+  gap: 10px;
+	justify-content: center;
+}
+```
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210123112440907.png" alt="image-20210123112440907" style="zoom:50%;" />
+
+*jusitify-content: end*
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210123112520581.png" alt="image-20210123112520581" style="zoom:50%;" />
+
+## grid-template-areas
+
+指定网格布局中的区域
+
+```html
+<div class='layout'>
+  <hearder>头部</hearder>
+  <aside>侧边栏</aside>
+  <main>内容</main>
+  <footer>底部</footer>
+</div>
+```
+
+```css
+.layout {
+  display: grid;
+  grid-template-areas:
+    "header header header"
+    "sidebar content content"
+    "footer footer footer";
+}
+
+header {
+  grid-area: header;
+  height: 60px;
+  background: #f96006;
+}
+
+aside {
+  grid-area: sidebar;
+  height: 200px;
+  background: yellow;
+}
+
+main {
+  grid-area: content; 
+  grid-area: content;
+  background: blue;
+}
+
+footer {
+  grid-area: footer;
+  height: 60px;
+  background: green;
+}
+```
+
+<img src="https://gitee.com/inkkk0516/typora/raw/master/image-20210123124952865.png" alt="image-20210123124952865" style="zoom:50%;" />
