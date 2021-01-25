@@ -22,6 +22,8 @@ class CustomElemet extends HTMLElement {
     super()
   }
 }
+
+customElements.define('my-template', CustomElemet)
 ```
 
 ## 元素生命周期
