@@ -1,14 +1,14 @@
 ---
 layout:     post
-title:      "Javascript Core"
+title:      "javascript进阶之数据类型"
 subtitle:   " 🎯 "
-date:       2021-01-06 12:00:00
+date:       2019-12-01 12:00:00
 author:     "Hiz"
 header-img: "img/post-bg-js-version.jpg"
 catalog: true
 tags:
     - Javascript
-    - Javascript
+    - Javascript 进阶
 ---
 
 # 数据类型
