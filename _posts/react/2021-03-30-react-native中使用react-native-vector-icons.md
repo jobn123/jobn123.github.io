@@ -67,3 +67,9 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 > Error: Multiple commands produce
 
 在 target -> Build phase > Copy Bundle Resource 中找到info.plist，并将其移除
+
+
+
+
+
+![Apr-02-2021 14-52-24](/Users/eleven/Downloads/Apr-02-2021 14-52-24.gif)
