@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "javascript进阶之闭包与作用域"
+title:      "javascript闭包与作用域"
 subtitle:   " 🎯 "
 date:       2019-12-02 12:00:00
 author:     "Hiz"
