@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "javascript内原型、原型链"
+title:      "javascript原型、原型链"
 subtitle:   " 🎯 "
 date:       2019-12-04 12:00:00
 author:     "Hiz"
