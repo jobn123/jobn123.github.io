@@ -58,7 +58,10 @@ kramdown:
 
 
 # Disqus settings
-# disqus_username: hux
+# disqus_username: ink
+
+# Valine settings
+valine_name: inkkk
 
 # Netease settings
 netease_comment: false
