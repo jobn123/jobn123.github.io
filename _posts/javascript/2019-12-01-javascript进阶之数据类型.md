@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "javascript进阶之数据类型"
+title:      "javascript数据类型"
 subtitle:   " 🎯 "
 date:       2019-12-01 12:00:00
 author:     "Hiz"
