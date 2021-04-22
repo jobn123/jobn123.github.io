@@ -2,7 +2,7 @@
 layout:     post
 title:      "javascript继承"
 subtitle:   " 🎯 "
-date:       2019-12-04 12:00:00
+date:       2019-12-05 12:00:00
 author:     "Hiz"
 header-img: "img/post-bg-js-version.jpg"
 catalog: true
