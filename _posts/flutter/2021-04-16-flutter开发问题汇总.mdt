@@ -25,3 +25,8 @@ tags:
  https://www.cnblogs.com/lxlx1798/p/10527741.html
  https://www.jianshu.com/p/59c73aa68023
  -->
+
+
+ <!-- DioError [DioErrorType.DEFAULT]: SocketException: OS Error: Connection refused, errno = 61, address = localhost, port = 61840 
+ 本地接口模拟器调试，
+ -->
