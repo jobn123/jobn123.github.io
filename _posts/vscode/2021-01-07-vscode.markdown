@@ -67,3 +67,9 @@ shift + option + 鼠标选择
 ```shell
 option + /
 ```
+
+# 展开、折叠所有代码块
+```shell
+command + k + 0
+command + k + J
+```
